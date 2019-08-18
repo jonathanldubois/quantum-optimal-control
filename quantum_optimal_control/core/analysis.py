@@ -13,7 +13,7 @@ class Analysis:
         self.tf_ops_weight = tf_ops_weight
         self.tf_unitary_scale = tf_unitary_scale
         self.tf_inter_vecs = tf_inter_vecs
-	self.this_dir = os.path.dirname(__file__)    
+        self.this_dir = os.path.dirname(__file__)    
 
     def RtoCMat(self,M):
         # real to complex matrix isomorphism
