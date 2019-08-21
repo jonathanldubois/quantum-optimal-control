@@ -7,7 +7,7 @@ from quantum_optimal_control.helper_functions.grape_functions import c_to_r_mat,
 def get_reg_loss(tfs):
     
     # Regulizer
-    with tf.name_scope('reg_errors'):
+    with tf.compat.v1.name_scope('reg_errors'):
         
         reg_loss = tfs.loss
         
@@ -54,7 +54,7 @@ def get_reg_loss(tfs):
             
             tf_u = tf.cast(tfs.ops_weight,dtype=tf.complex64)
            
-            tf_fft = tf.complex_abs(tf.fft(tf_u))
+            tf_fft = tf.complex_abs(tf.signal.fft(tf_u))
             
             band = np.array(tfs.sys_para.reg_coeffs['band'])
 
@@ -62,7 +62,7 @@ def get_reg_loss(tfs):
             half_id = int(tfs.sys_para.steps/2)
             
             
-            fft_loss = bandpass_reg_alpha*(tf.reduce_sum(tf_fft[:,0:band_id[0]]) + tf.reduce_sum(tf_fft[:,band_id[1]:half_id]))
+            fft_loss = bandpass_reg_alpha*(tf.reduce_sum(input_tensor=tf_fft[:,0:band_id[0]]) + tf.reduce_sum(input_tensor=tf_fft[:,band_id[1]:half_id]))
             
             reg_loss = reg_loss + fft_loss
         
@@ -77,7 +77,7 @@ def get_reg_loss(tfs):
 
             for inter_vec in tfs.inter_vecs:
                 if tfs.sys_para.is_dressed and ('forbid_dressed' in tfs.sys_para.reg_coeffs and tfs.sys_para.reg_coeffs['forbid_dressed']):
-                    inter_vec = tf.matmul(tf.transpose(v_sorted), inter_vec)
+                    inter_vec = tf.matmul(tf.transpose(a=v_sorted), inter_vec)
                 for inter_reg_alpha_coeff, state in zip(tfs.sys_para.reg_coeffs['forbidden_coeff_list'],tfs.sys_para.reg_coeffs['states_forbidden_list']):
                     inter_reg_alpha = inter_reg_alpha_coeff / float(tfs.sys_para.steps)
                     forbidden_state_pop = tf.square(inter_vec[state, :]) + \

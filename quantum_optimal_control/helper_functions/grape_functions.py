@@ -218,4 +218,3 @@ def c_to_r_vec(V):
     new_v.append(V.real)
     new_v.append(V.imag)
     return np.reshape(new_v,[2*len(V)])
-        

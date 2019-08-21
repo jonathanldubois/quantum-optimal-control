@@ -20,17 +20,17 @@ class run_session:
         self.show_plots = show_plots
         self.target = False
         if not use_gpu:
-            config = tf.ConfigProto(device_count = {'GPU': 0})
+            config = tf.compat.v1.ConfigProto(device_count = {'GPU': 0})
             config.intra_op_parallelism_threads = 0
             config.inter_op_parallelism_threads = 0
         else:
-            config = tf.ConfigProto(device_coutn = {'GPU': 0})
+            config = tf.compat.v1.ConfigProto(device_coutn = {'GPU': 0})
             config.intra_op_parallelism_threads = 0
             config.inter_op_parallelism_threads = 0
         
-        with tf.Session(graph=graph, config = config) as self.session:
+        with tf.compat.v1.Session(graph=graph, config = config) as self.session:
             
-            tf.global_variables_initializer().run()
+            tf.compat.v1.global_variables_initializer().run()
 
             print("Initialized")
             

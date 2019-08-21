@@ -59,10 +59,10 @@ class TensorflowState:
             ###
             
             for ii in range(1,input_num):
-                coeff_grad.append(tf.reduce_sum(tf.multiply(grad,
+                coeff_grad.append(tf.reduce_sum(input_tensor=tf.multiply(grad,
                        tf.matmul(H_all[ii],matexp,a_is_sparse=self.sys_para.sparse_H,b_is_sparse=self.sys_para.sparse_U))))
 
-            return [tf.stack(coeff_grad), tf.zeros(tf.shape(H_all),dtype=tf.float32)]                                         
+            return [tf.stack(coeff_grad), tf.zeros(tf.shape(input=H_all),dtype=tf.float32)]                                         
 
         global matexp_op
         
@@ -110,7 +110,7 @@ class TensorflowState:
             
             
             for ii in range(1,input_num):
-                coeff_grad.append(tf.reduce_sum(tf.multiply(grad,
+                coeff_grad.append(tf.reduce_sum(input_tensor=tf.multiply(grad,
                        tf.matmul(H_all[ii],matvecexp,a_is_sparse=self.sys_para.sparse_H,b_is_sparse=self.sys_para.sparse_K))))
                 
              
@@ -130,7 +130,7 @@ class TensorflowState:
                 vec_grad_n = tf.matmul(H,vec_grad_n,a_is_sparse=self.sys_para.sparse_H,b_is_sparse=self.sys_para.sparse_K)
                 vec_grad = vec_grad + vec_grad_n/factorial
 
-            return [tf.stack(coeff_grad), tf.zeros(tf.shape(H_all),dtype=tf.float32),vec_grad]                                         
+            return [tf.stack(coeff_grad), tf.zeros(tf.shape(input=H_all),dtype=tf.float32),vec_grad]                                         
         
         global matvecexp_op
         
@@ -153,12 +153,12 @@ class TensorflowState:
         for initial_vector in self.sys_para.initial_vectors:
             tf_initial_vector = tf.constant(initial_vector,dtype=tf.float32)
             self.tf_initial_vectors.append(tf_initial_vector)
-        self.packed_initial_vectors = tf.transpose(tf.stack(self.tf_initial_vectors))
+        self.packed_initial_vectors = tf.transpose(a=tf.stack(self.tf_initial_vectors))
     
     def init_tf_propagators(self):
         #tf initial and target propagator
         if self.sys_para.state_transfer:
-            self.target_vecs = tf.transpose(tf.constant(np.array(self.sys_para.target_vectors),dtype=tf.float32))
+            self.target_vecs = tf.transpose(a=tf.constant(np.array(self.sys_para.target_vectors),dtype=tf.float32))
         else:
             self.tf_initial_unitary = tf.constant(self.sys_para.initial_unitary,dtype=tf.float32, name = 'U0')
             self.tf_target_state = tf.constant(self.sys_para.target_unitary,dtype=tf.float32)
@@ -222,7 +222,7 @@ class TensorflowState:
         
         self.final_state = self.inter_states[self.sys_para.steps-1]
         
-        self.unitary_scale = (0.5/self.sys_para.state_num)*tf.reduce_sum(tf.matmul(tf.transpose(self.final_state),self.final_state))
+        self.unitary_scale = (0.5/self.sys_para.state_num)*tf.reduce_sum(input_tensor=tf.matmul(tf.transpose(a=self.final_state),self.final_state))
         
         print("Intermediate propagators initialized.")
         
@@ -269,13 +269,13 @@ class TensorflowState:
         psi_2_real = (psi2[0:state_num])
         psi_2_imag = (psi2[state_num:2*state_num])
         # psi1 has a+ib, psi2 has c+id, we wanna get Sum ((ac+bd) + i (bc-ad)) magnitude
-        with tf.name_scope('inner_product'):
+        with tf.compat.v1.name_scope('inner_product'):
             ac = tf.multiply(psi_1_real,psi_2_real)
             bd = tf.multiply(psi_1_imag,psi_2_imag)
             bc = tf.multiply(psi_1_imag,psi_2_real)
             ad = tf.multiply(psi_1_real,psi_2_imag)
-            reals = tf.square(tf.add(tf.reduce_sum(ac),tf.reduce_sum(bd)))
-            imags = tf.square(tf.subtract(tf.reduce_sum(bc),tf.reduce_sum(ad)))
+            reals = tf.square(tf.add(tf.reduce_sum(input_tensor=ac),tf.reduce_sum(input_tensor=bd)))
+            imags = tf.square(tf.subtract(tf.reduce_sum(input_tensor=bc),tf.reduce_sum(input_tensor=ad)))
             norm = tf.add(reals,imags)
         return norm
         
@@ -289,13 +289,13 @@ class TensorflowState:
         psi_2_real = (psi2[0:state_num,:])
         psi_2_imag = (psi2[state_num:2*state_num,:])
         # psi1 has a+ib, psi2 has c+id, we wanna get Sum ((ac+bd) + i (bc-ad)) magnitude
-        with tf.name_scope('inner_product'):
-            ac = tf.reduce_sum(tf.multiply(psi_1_real,psi_2_real),0)
-            bd = tf.reduce_sum(tf.multiply(psi_1_imag,psi_2_imag),0)
-            bc = tf.reduce_sum(tf.multiply(psi_1_imag,psi_2_real),0)
-            ad = tf.reduce_sum(tf.multiply(psi_1_real,psi_2_imag),0)
-            reals = tf.square(tf.reduce_sum(tf.add(ac,bd))) # first trace inner product of all vectors, then squared
-            imags = tf.square(tf.reduce_sum(tf.subtract(bc,ad)))
+        with tf.compat.v1.name_scope('inner_product'):
+            ac = tf.reduce_sum(input_tensor=tf.multiply(psi_1_real,psi_2_real),axis=0)
+            bd = tf.reduce_sum(input_tensor=tf.multiply(psi_1_imag,psi_2_imag),axis=0)
+            bc = tf.reduce_sum(input_tensor=tf.multiply(psi_1_imag,psi_2_real),axis=0)
+            ad = tf.reduce_sum(input_tensor=tf.multiply(psi_1_real,psi_2_imag),axis=0)
+            reals = tf.square(tf.reduce_sum(input_tensor=tf.add(ac,bd))) # first trace inner product of all vectors, then squared
+            imags = tf.square(tf.reduce_sum(input_tensor=tf.subtract(bc,ad)))
             norm = (tf.add(reals,imags))/(len(self.sys_para.states_concerned_list)**2)
         return norm
     
@@ -309,14 +309,14 @@ class TensorflowState:
         psi_2_real = (psi2[0:state_num,:])
         psi_2_imag = (psi2[state_num:2*state_num,:])
         # psi1 has a+ib, psi2 has c+id, we wanna get Sum ((ac+bd) + i (bc-ad)) magnitude
-        with tf.name_scope('inner_product'):
-            ac = tf.reduce_sum(tf.multiply(psi_1_real,psi_2_real),0)
-            bd = tf.reduce_sum(tf.multiply(psi_1_imag,psi_2_imag),0)
-            bc = tf.reduce_sum(tf.multiply(psi_1_imag,psi_2_real),0)
-            ad = tf.reduce_sum(tf.multiply(psi_1_real,psi_2_imag),0)
-            reals = tf.reduce_sum(tf.square(tf.reduce_sum(tf.add(ac,bd),1)))
+        with tf.compat.v1.name_scope('inner_product'):
+            ac = tf.reduce_sum(input_tensor=tf.multiply(psi_1_real,psi_2_real),axis=0)
+            bd = tf.reduce_sum(input_tensor=tf.multiply(psi_1_imag,psi_2_imag),axis=0)
+            bc = tf.reduce_sum(input_tensor=tf.multiply(psi_1_imag,psi_2_real),axis=0)
+            ad = tf.reduce_sum(input_tensor=tf.multiply(psi_1_real,psi_2_imag),axis=0)
+            reals = tf.reduce_sum(input_tensor=tf.square(tf.reduce_sum(input_tensor=tf.add(ac,bd),axis=1)))
             # first trace inner product of all vectors, then squared, then sum contribution of all time steps
-            imags = tf.reduce_sum(tf.square(tf.reduce_sum(tf.subtract(bc,ad),1)))
+            imags = tf.reduce_sum(input_tensor=tf.square(tf.reduce_sum(input_tensor=tf.subtract(bc,ad),axis=1)))
             norm = (tf.add(reals,imags))/(len(self.sys_para.states_concerned_list)**2)
         return norm
     
@@ -341,8 +341,8 @@ class TensorflowState:
             
     def init_optimizer(self):
         # Optimizer. Takes a variable learning rate.
-        self.learning_rate = tf.placeholder(tf.float32,shape=[])
-        self.opt = tf.train.AdamOptimizer(learning_rate = self.learning_rate)
+        self.learning_rate = tf.compat.v1.placeholder(tf.float32,shape=[])
+        self.opt = tf.compat.v1.train.AdamOptimizer(learning_rate = self.learning_rate)
         
         #Here we extract the gradients of the pulses
         self.grad = self.opt.compute_gradients(self.reg_loss)
@@ -350,14 +350,14 @@ class TensorflowState:
         self.grad_pack = tf.stack([g for g, _ in self.grad])
         
         self.grads =[tf.nn.l2_loss(g) for g, _ in self.grad]
-        self.grad_squared = tf.reduce_sum(tf.stack(self.grads))
+        self.grad_squared = tf.reduce_sum(input_tensor=tf.stack(self.grads))
         self.optimizer = self.opt.apply_gradients(self.grad)
         
         print("Optimizer initialized.")
     
     def init_utilities(self):
         # Add ops to save and restore all the variables.
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         
         print("Utilities initialized.")
         
