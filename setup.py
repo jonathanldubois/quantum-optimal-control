@@ -11,8 +11,8 @@ except:
 #import library prior to installation 
 MAJOR = 0
 MINOR = 1 
-MICRO = 0 
-VERSION = '{0}.{1}.{2}'.format(MAJOR,MINOR,MICRO)
+MICRO = 3 
+VERSION = '{0}.{1}.{1}'.format(MAJOR,MINOR,MICRO)
 NAME = 'quantum_optimal_control'
 URL = 'https://github.com/SchusterLab/quantum-optimal-control'
 AUTHOR = '''Nelson Leung, Mohamed Abdelhafez,
@@ -105,6 +105,6 @@ setup(
 	keywords=KEYWORDS,
 	description=DESCRIPTION,
 	platforms=PLATFORMS,
-	install_requies=INSTALL_REQUIRES,
+	install_requires=INSTALL_REQUIRES,
 	classifiers=CLASSIFIERS
 	)

@@ -88,7 +88,11 @@ class Convergence:
         if self.sys_para.draw_list !=[]:
             for kk in range(len(self.sys_para.draw_list)):
                 plt.plot(np.array([self.sys_para.dt* ii for ii in range(self.sys_para.steps+1)]),np.array(pop_inter_vecs[self.sys_para.draw_list[kk],:]),label=self.sys_para.draw_names[kk])
-                
+#                if(start==0):
+#                    if('match_path' in self.sys_para.reg_coeffs):
+#                        path_state_pops = self.sys_para.reg_coeffs['path_state_pop_list']
+#                        path_step = self.sys_para.reg_coeffs['path_step']
+#                        plt.plot(np.array([self.sys_para.dt* ii for ii in range(int(self.sys_para.steps/path_step)+1)]),np.array(path_state_pops[self.sys_para.draw_list[kk],:]),'.',alpha=.2)
         
         else:
             

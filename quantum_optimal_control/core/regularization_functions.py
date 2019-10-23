@@ -94,5 +94,19 @@ def get_reg_loss(tfs):
             target_vecs_inner_product = tfs.get_inner_product_3D(tfs.inter_vecs_packed,target_vecs_all_timestep)
             reg_loss = reg_loss + speed_up_reg_alpha * tf.nn.l2_loss(tfs.sys_para.steps+1 - target_vecs_inner_product)            
 
+
+        # compare with data assume initial state is 0
+        if 'match_path' in tfs.sys_para.reg_coeffs:
+            match_path_alpha_coeff = tfs.sys_para.reg_coeffs['match_path']
+            print("path matching with weight: ",match_path_alpha_coeff)
+            path_state_pops = tfs.sys_para.reg_coeffs['path_state_pop_list']
+            path_step = tfs.sys_para.reg_coeffs['path_step']
+            print("path step: ",path_step)
+            match_reg_alpha = match_path_alpha_coeff / float(tfs.sys_para.steps/path_step)
+            for inter_vec,path_state_pop in zip(tfs.inter_vecs,path_state_pops):
+                for state in tfs.sys_para.reg_coeffs['path_state_list']:
+                    iv_pop = tf.square(inter_vec[state, ::path_step]) + tf.square(inter_vec[tfs.sys_para.state_num + state, ::path_step])
+                    reg_loss = reg_loss + match_reg_alpha * tf.nn.l2_loss(iv_pop - path_state_pop[state,:])
+
         return reg_loss
                     
