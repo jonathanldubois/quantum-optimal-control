@@ -24,9 +24,8 @@ class run_session:
             config.intra_op_parallelism_threads = 0
             config.inter_op_parallelism_threads = 0
         else:
-            config = tf.compat.v1.ConfigProto(device_coutn = {'GPU': 0})
-            config.intra_op_parallelism_threads = 0
-            config.inter_op_parallelism_threads = 0
+            config = None
+
         
         with tf.compat.v1.Session(graph=graph, config = config) as self.session:
             
