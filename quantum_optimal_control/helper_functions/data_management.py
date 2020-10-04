@@ -156,13 +156,13 @@ class H5File(h5py.File):
 
         data = np.array(data)
         try:
-            f.create_dataset(key, shape=tuple([1] + list(data.shape)),
+            f.require_dataset(key, shape=tuple([1] + list(data.shape)),
                              maxshape=tuple([None] * (len(data.shape) + 1)),
                              dtype=str(data.dtype))
         except RuntimeError:
             if forceInit == True:
                 del f[key]
-                f.create_dataset(key, shape=tuple([1] + list(data.shape)),
+                f.require_dataset(key, shape=tuple([1] + list(data.shape)),
                                  maxshape=tuple([None] * (len(data.shape) + 1)),
                                  dtype=str(data.dtype))
             dataset = f[key]
